@@ -17,4 +17,13 @@ public static class ListExtensions
             list.Add(item);
         }
     }
+
+    public static List<T> WithRemovedIndex<T>(this List<T> list, int index)
+    {
+        List<T> newList = new(list);
+
+        newList.RemoveAt(index);
+
+        return newList;
+    }
 }

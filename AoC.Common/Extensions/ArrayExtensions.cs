@@ -197,4 +197,13 @@ public static class ArrayExtensions
 
         return nonMatching;
     }
+
+    public static T[] WithRemovedIndex<T>(this T[] list, int index)
+    {
+        List<T> newList = new(list);
+
+        newList.RemoveAt(index);
+
+        return [.. newList];
+    }
 }
