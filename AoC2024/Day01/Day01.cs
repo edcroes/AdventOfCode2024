@@ -6,56 +6,27 @@ public class Day01 : IMDay
 
     public async Task<string> GetAnswerPart1()
     {
-        var input = await GetInput();
-
-        return input
-            .Select(i => i.Where(c => c.IsNumber()))
-            .Sum(s => $"{s.First()}{s.Last()}".ParseToInt())
+        var (first, second) = await GetInput();
+        return Enumerable
+            .Range(0, first.Length)
+            .Sum(i => Math.Abs(first[i] - second[i]))
             .ToString();
     }
 
     public async Task<string> GetAnswerPart2()
     {
-        var input = await GetInput();
-
-        return input
-            .Select(GetNumbers)
-            .Select(i => i.Where(c => c.IsNumber()))
-            .Sum(s => $"{s.First()}{s.Last()}".ParseToInt())
+        var (first, second) = await GetInput();
+        return first
+            .Sum(n => n * second.Count(sn => sn == n))
             .ToString();
     }
 
-    private static string GetNumbers(string line)
+    private async Task<(int[], int[])> GetInput()
     {
-        Dictionary<string, char> numbers = new()
-        {
-            { "one",   '1' },
-            { "two",   '2' },
-            { "three", '3' },
-            { "four",  '4' },
-            { "five",  '5' },
-            { "six",   '6' },
-            { "seven", '7' },
-            { "eight", '8' },
-            { "nine",  '9' }
-        };
+        var lines = await FileParser.ReadLinesAsIntArray(FilePath, " ");
+        var first = lines.Select(l => l[0]).OrderBy(i => i).ToArray();
+        var second = lines.Select(l => l[1]).OrderBy(i => i).ToArray();
 
-        var result = string.Empty;
-        for (var i = 0; i < line.Length; i++)
-        {
-            var number = numbers.Keys.SingleOrDefault(n => line[i..].StartsWith(n));
-            if (number.IsNotNullOrEmpty())
-            {
-                result += numbers[number];
-                i += number.Length - 2;
-            }
-            else if (line[i].IsNumber())
-                result += line[i];
-        }
-
-        return result;
+        return (first, second);
     }
-
-    private async Task<string[]> GetInput() =>
-        await FileParser.ReadLinesAsString(FilePath);
 }
