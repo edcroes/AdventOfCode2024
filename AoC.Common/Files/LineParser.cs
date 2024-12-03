@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using System.Text.RegularExpressions;
 
 namespace AoC.Common.Files;
 
@@ -42,4 +43,9 @@ public static class LineParser
 
     public static string[] ToStringArray(this string line, string separator) =>
         line.Split(separator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+    public static dynamic[] FromRegex(this string line, Regex regex) =>
+        regex.Matches(line)
+            .Select(m => new StringDictionaryDynamic(m.Groups.Values.Select(g => new KeyValuePair<string, string?>(g.Name, g.Value)).ToDictionary()))
+            .ToArray();
 }

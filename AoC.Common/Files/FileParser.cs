@@ -1,4 +1,6 @@
-﻿using System.Numerics;
+﻿using System.Dynamic;
+using System.Numerics;
+using System.Text.RegularExpressions;
 
 namespace AoC.Common.Files;
 
@@ -80,5 +82,27 @@ public static class FileParser
         (await File.ReadAllLinesAsync(filePath))
             .Where(l => l.IsNotNullOrEmpty())
             .Select(l => l.ToBoolArray(trueValue))
+            .ToArray();
+
+    public static async Task<dynamic[]> ReadLineUsingRegex(string filePath, Regex regex) =>
+        string.Join("", await File.ReadAllLinesAsync(filePath)).FromRegex(regex);
+
+    public static async Task<dynamic[][]> ReadLinesUsingRegex(string filePath, Regex regex) =>
+        (await File.ReadAllLinesAsync(filePath))
+            .Select(l => l.FromRegex(regex))
+            .ToArray();
+
+    public static async Task<T[]> ReadLineUsingRegex<T>(string filePath, Regex regex, Func<dynamic, T> parser) =>
+        string.Join("", await File.ReadAllLinesAsync(filePath))
+            .FromRegex(regex)
+            .Select(parser)
+            .ToArray();
+
+    public static async Task<T[][]> ReadLinesUsingRegex<T>(string filePath, Regex regex, Func<dynamic, T> parser) =>
+        (await File.ReadAllLinesAsync(filePath))
+            .Select(l => l
+                .FromRegex(regex)
+                .Select(parser)
+                .ToArray())
             .ToArray();
 }
