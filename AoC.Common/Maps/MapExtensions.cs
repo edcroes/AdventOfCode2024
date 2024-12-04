@@ -1,4 +1,6 @@
-﻿namespace AoC.Common.Maps;
+﻿using System.Drawing;
+
+namespace AoC.Common.Maps;
 
 public static class MapExtensions
 {
@@ -262,5 +264,64 @@ public static class MapExtensions
         var newMap = map.Clone();
         newMap.RotateLeft();
         return GetMirrorOnX(newMap, skipY, faultsToAllow);
+    }
+
+    public static SearchResult? Find<T>(this Map<T> map, T[] rangeToFind, Direction direction = Direction.All) where T : notnull
+    {
+        var directions = GetSuppliedDirections(direction);
+
+        for (var y = 0; y < map.SizeY; y++)
+        {
+            for (var x = 0; x < map.SizeX; x++)
+            {
+                Point point = new(x, y);
+                var foundDirection = directions.FirstOrDefault(d => HasSearchTerm(map, rangeToFind, point, d));
+                if (foundDirection != Direction.None)
+                {
+                    return new(point, foundDirection);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public static IEnumerable<SearchResult> FindAll<T>(this Map<T> map, T[] rangeToFind, Direction direction = Direction.All) where T : notnull
+    {
+        var directions = GetSuppliedDirections(direction);
+        List<SearchResult> results = [];
+
+        map.ForEachPoint(p =>
+        {
+            var foundDirections = directions.Where(d => HasSearchTerm(map, rangeToFind, p, d));
+            foreach (var dir in foundDirections)
+            {
+                results.Add(new(p, dir));
+            }
+        });
+
+        return results;
+    }
+
+    private static Direction[] GetSuppliedDirections(Direction directions) =>
+        Enum.GetValues<Direction>()
+            .Where(e => !e.IsIn(Direction.All, Direction.None) && directions.HasFlag(e))
+            .ToArray();
+
+    private static bool HasSearchTerm<T>(Map<T> map, T[] searchTerm, Point start, Direction direction) where T : notnull
+    {
+        foreach (var item in searchTerm)
+        {
+            if (map.Contains(start) && item.Equals(map.GetValueOrDefault(start)))
+            {
+                start = start.Add(direction.ToPoint());
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

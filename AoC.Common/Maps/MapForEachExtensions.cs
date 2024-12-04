@@ -86,6 +86,19 @@ public static class MapForEachExtensions
     public static Map<T> ForEach<T>(this Map<T> map, Action<Point, T> action) where T : notnull =>
         map.ForEach((0, map.SizeX - 1), (0, map.SizeY - 1), action);
 
+    public static Map<T> ForEachPoint<T>(this Map<T> map, Action<Point> action) where T : notnull
+    {
+        for (var y = 0; y < map.SizeY; y++)
+        {
+            for (var x = 0; x < map.SizeX; x++)
+            {
+                action(new(x, y));
+            }
+        }
+
+        return map;
+    }
+
     private static Map<T> ForEach<T>(this Map<T> map, ValueTuple<int, int> x, ValueTuple<int, int> y, Action<Point, T> action, bool xFirst = true) where T : notnull
     {
         var (yFrom, yTo) = y;

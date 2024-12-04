@@ -38,12 +38,12 @@ public class Map<T> where T : notnull
 
     public T? GetValueOrDefault(int x, int y, T? defaultValue = default)
     {
-        if (x < 0 || x >= SizeX || y < 0 || y >= SizeY)
+        if (Contains(x, y))
         {
-            return defaultValue;
+            return GetValue(x, y);
         }
 
-        return GetValue(x, y);
+        return defaultValue;
     }
 
     public T GetValue(Point point) => GetValue(point.X, point.Y);
@@ -53,6 +53,10 @@ public class Map<T> where T : notnull
     public void SetValue(Point location, T value) => SetValue(location.X, location.Y, value);
 
     public void SetValue(int x, int y, T value) => _map[y, x] = value;
+
+    public bool Contains(Point point) => Contains(point.X, point.Y);
+
+    public bool Contains(int x, int y) => x >= 0 && x < SizeX && y >= 0 && y < SizeY;
 
     public T[] GetLine(int fromX, int fromY, int toX, int toY)
     {
@@ -302,8 +306,6 @@ public class Map<T> where T : notnull
 
         return false;
     }
-
-    public bool Contains(Point point) => point.X >= 0 && point.X < SizeX && point.Y >= 0 && point.Y < SizeY;
 
     public Map<T> Clone()
     {
