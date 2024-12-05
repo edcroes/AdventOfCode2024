@@ -39,4 +39,3 @@ public class Day04 : IMDay
     private async Task<Map<char>> GetInput() =>
         new(await FileParser.ReadLinesAsCharArray(FilePath));
 }
-     
