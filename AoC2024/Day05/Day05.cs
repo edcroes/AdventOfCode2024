@@ -25,17 +25,17 @@ public class Day05 : IMDay
             .ToString();
     }
 
-    private static bool IsInCorrectOrder(int[] pages, Rule[] rules)
+    private static bool IsInCorrectOrder(int[] pages, HashSet<Rule> rules)
     {
         return Enumerable.Range(0, pages.Length)
-            .All(i => rules.All(r => r.Right != pages[i] || !pages[(i + 1)..].Contains(r.Left)));
+            .All(x => pages[(x + 1)..].All(y => !rules.Contains(new Rule(y, pages[x]))));
     }
 
-    private async Task<(Rule[], int[][])> GetInput()
+    private async Task<(HashSet<Rule>, int[][])> GetInput()
     {
         var (first, second) = await FileParser.ReadBlocksAsStringArray(FilePath);
 
-        var rules = first!.Select(Parse).ToArray();
+        HashSet<Rule> rules = new(first!.Select(Parse));
         var sets = second!.Select(l => l.ToIntArray(",")).ToArray();
 
         return (rules, sets);
@@ -49,14 +49,14 @@ public class Day05 : IMDay
 
     private record struct Rule(int Left, int Right);
 
-    private class PageComparer(Rule[] rules) : IComparer<int>
+    private class PageComparer(HashSet<Rule> rules) : IComparer<int>
     {
         public int Compare(int x, int y)
         {
-            if (rules.Any(r => r.Left == x && r.Right == y))
+            if (rules.Contains(new(x, y)))
                 return -1;
 
-            if (rules.Any(r => r.Left == y && r.Right == x))
+            if (rules.Contains(new(y, x)))
                 return 1;
 
             return 0;
