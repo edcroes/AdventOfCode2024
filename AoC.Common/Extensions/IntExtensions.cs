@@ -3,31 +3,31 @@ public static class IntExtensions
 {
     public static int GetDigitCount(this int value)
     {
-        if (value >= 0)
+        return value switch
         {
-            if (value < 10) return 1;
-            if (value < 100) return 2;
-            if (value < 1000) return 3;
-            if (value < 10000) return 4;
-            if (value < 100000) return 5;
-            if (value < 1000000) return 6;
-            if (value < 10000000) return 7;
-            if (value < 100000000) return 8;
-            if (value < 1000000000) return 9;
-            return 10;
-        }
-        else
-        {
-            if (value > -10) return 2;
-            if (value > -100) return 3;
-            if (value > -1000) return 4;
-            if (value > -10000) return 5;
-            if (value > -100000) return 6;
-            if (value > -1000000) return 7;
-            if (value > -10000000) return 8;
-            if (value > -100000000) return 9;
-            if (value > -1000000000) return 10;
-            return 11;
-        }
+            >= 0 and < 10 => 1,
+            >= 10 and < 100 => 2,
+            >= 100 and < 1000 => 3,
+            >= 1000 and < 10000 => 4,
+            >= 10000 and < 100000 => 5,
+            >= 100000 and < 1000000 => 6,
+            >= 1000000 and < 10000000 => 7,
+            >= 10000000 and < 100000000 => 8,
+            >= 100000000 and < 1000000000 => 9,
+            >= 1000000000 => 10,
+            < 0 and > -10 => 1,
+            <= -10 and > -100 => 2,
+            <= -100 and > -1000 => 3,
+            <= -1000 and > -10000 => 4,
+            <= -10000 and > -100000 => 5,
+            <= -100000 and > -1000000 => 6,
+            <= -1000000 and > -10000000 => 7,
+            <= -10000000 and > -100000000 => 8,
+            <= -100000000 and > -1000000000 => 9,
+            <= -1000000000 => 10
+        };
     }
+
+    public static int Join(this int value, int other) =>
+        value * (int)Math.Pow(10, other.GetDigitCount()) + other;
 }

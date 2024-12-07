@@ -17,7 +17,19 @@ public static class LineParser
             .Select(c => int.Parse(c.ToString()))
             .ToArray();
 
+    public static int[] ToIntArray(this string line, string[] separator) =>
+        line
+            .Split(separator, StringSplitOptions.RemoveEmptyEntries)
+            .Select(c => int.Parse(c.ToString()))
+            .ToArray();
+
     public static long[] ToLongArray(this string line, string separator) =>
+        line
+            .Split(separator, StringSplitOptions.RemoveEmptyEntries)
+            .Select(c => long.Parse(c.ToString()))
+            .ToArray();
+
+    public static long[] ToLongArray(this string line, string[] separator) =>
         line
             .Split(separator, StringSplitOptions.RemoveEmptyEntries)
             .Select(c => long.Parse(c.ToString()))

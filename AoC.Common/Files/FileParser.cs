@@ -57,6 +57,16 @@ public static class FileParser
             .Select(l => l.ToIntArray(separator))
             .ToArray();
 
+    public static async Task<int[][]> ReadLinesAsIntArray(string filePath, string[] separator) =>
+        (await File.ReadAllLinesAsync(filePath))
+            .Select(l => l.ToIntArray(separator))
+            .ToArray();
+
+    public static async Task<long[][]> ReadLinesAsLongArray(string filePath, string[] separator) =>
+        (await File.ReadAllLinesAsync(filePath))
+            .Select(l => l.ToLongArray(separator))
+            .ToArray();
+
     public static async Task<string[][]> ReadLinesAsStringArray(string filePath, string separator) =>
         (await File.ReadAllLinesAsync(filePath))
             .Where(l => l.IsNotNullOrEmpty())
