@@ -19,9 +19,9 @@ public static class PointMapLogExtensions
         var bounds = map.GetBoundingRectangle();
         StringBuilder builder = new();
 
-        for (var y = bounds.Y; y <= bounds.Height; y++)
+        for (var y = bounds.Y; y < bounds.Height; y++)
         {
-            for (var x = bounds.X; x <= bounds.Width; x++)
+            for (var x = bounds.X; x < bounds.Width; x++)
             {
                 builder.Append(mapToChar(map.GetValueOrDefault(x, y)));
             }
