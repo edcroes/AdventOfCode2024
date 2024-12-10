@@ -21,6 +21,9 @@ public static class PointExtensions
 
     public static Point<long> ToLongPoint(this Point point) =>
         new(point.X, point.Y);
+    
+    public static Point<int> ToIntPoint(this Point point) =>
+        new(point.X, point.Y);
 
     public static Point ToPoint(this Point<long> point)
     {

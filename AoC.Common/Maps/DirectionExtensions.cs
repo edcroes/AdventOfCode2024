@@ -1,4 +1,6 @@
-﻿namespace AoC.Common.Maps;
+﻿using System.Numerics;
+
+namespace AoC.Common.Maps;
 
 public static class DirectionExtensions
 {
@@ -27,6 +29,20 @@ public static class DirectionExtensions
             { X: -1, Y:  1 } => Direction.SouthWest,
             { X: -1, Y:  0 } => Direction.West,
             { X: -1, Y: -1 } => Direction.NorthWest,
+            _ => throw new ArgumentOutOfRangeException(nameof(direction))
+        };
+
+    public static Point<T> ToGenericPoint<T>(this Direction direction) where T : INumber<T>  =>
+        direction switch
+        {
+            Direction.North => new(T.Zero, -T.One),
+            Direction.NorthEast => new(T.One, -T.One),
+            Direction.East => new(T.One, T.Zero),
+            Direction.SouthEast => new(T.One, T.One),
+            Direction.South => new(T.Zero, T.One),
+            Direction.SouthWest => new(-T.One, T.One),
+            Direction.West => new(-T.One, T.Zero),
+            Direction.NorthWest => new(-T.One, -T.One),
             _ => throw new ArgumentOutOfRangeException(nameof(direction))
         };
 }

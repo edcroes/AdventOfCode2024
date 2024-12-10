@@ -9,6 +9,9 @@ public class PointMap<TPointType, TValue> where TPointType : INumber<TPointType>
     private readonly TPointType? _sizeX = default;
     private readonly TPointType? _sizeY = default;
 
+    private readonly Dictionary<TPointType, HashSet<Point<TPointType>>> _pointsOnXCache = [];
+    private readonly Dictionary<TPointType, HashSet<Point<TPointType>>> _pointsOnYCache = [];
+
     public PointMap() { }
 
     public PointMap(TValue[][] values, TValue[] valuesToKeep, bool fixedSize = false)
@@ -56,6 +59,21 @@ public class PointMap<TPointType, TValue> where TPointType : INumber<TPointType>
         }
     }
 
+    private PointMap(Dictionary<Point<TPointType>, TValue> points)
+    {
+        _points = points;
+        _isFixedSize = false;
+    }
+
+    private PointMap(Dictionary<Point<TPointType>, TValue> points, TPointType sizeX, TPointType sizeY)
+    {
+        foreach (var point in points.Keys)
+            SetValue(point, points[point]);
+
+        _sizeX = sizeX;
+        _sizeY = sizeY;
+    }
+
     public TPointType SizeX => _isFixedSize ? _sizeX! : GetBoundingRectangle().Width;
 
     public TPointType SizeY => _isFixedSize ? _sizeY! : GetBoundingRectangle().Height;
@@ -65,8 +83,11 @@ public class PointMap<TPointType, TValue> where TPointType : INumber<TPointType>
     public TPointType MinY => _isFixedSize ? TPointType.Zero : _points.Keys.Min(p => p.Y);
     public TPointType MaxY => _isFixedSize ? SizeY - TPointType.One : _points.Keys.Max(p => p.Y);
 
-    public IReadOnlyList<Point<TPointType>> Points =>
-        _points.Keys.ToList();
+    //public IReadOnlyList<Point<TPointType>> Points =>
+    //    _points.Keys.ToList();
+
+    public HashSet<Point<TPointType>> Points =>
+        [.. _points.Keys];
 
     public TValue GetValue(TPointType x, TPointType y) =>
         GetValue(new(x, y));
@@ -83,11 +104,19 @@ public class PointMap<TPointType, TValue> where TPointType : INumber<TPointType>
     public void SetValue(TPointType x, TPointType y, TValue value) =>
         SetValue(new(x, y), value);
 
-    public void SetValue(Point<TPointType> point, TValue value) =>
+    public void SetValue(Point<TPointType> point, TValue value)
+    {
         _points.AddOrSet(point, value);
+        _pointsOnXCache.AddOrUpdate(point.X, point);
+        _pointsOnYCache.AddOrUpdate(point.Y, point);
+    }
 
-    public void RemoveValue(Point<TPointType> point) =>
+    public void RemoveValue(Point<TPointType> point)
+    {
         _points.Remove(point);
+        _pointsOnXCache[point.X].Remove(point);
+        _pointsOnYCache[point.Y].Remove(point);
+    }
 
     public IEnumerable<Point<TPointType>> GetStraightAndDiagonalNeighbors(Point<TPointType> point)
     {
@@ -128,6 +157,27 @@ public class PointMap<TPointType, TValue> where TPointType : INumber<TPointType>
         return new(minX!, minY!, maxX! - minX! + TPointType.One, maxY! - minY! + TPointType.One);
     }
 
+    public IEnumerable<Point<TPointType>> GetPointsInDirection(Point<TPointType> start, Direction direction)
+    {
+        return direction switch
+        {
+            Direction.North => _pointsOnXCache.TryGetValue(start.X, out var set) ? set.Where(p => p.Y < start.Y) : [],
+            Direction.NorthEast => Points.Where(p => p.X > start.X && p.Y < start.Y && (p.X - start.X) - (start.Y - p.Y) == TPointType.Zero),
+            Direction.East => _pointsOnYCache.TryGetValue(start.Y, out var set) ? set.Where(p => p.X > start.X) : [],
+            Direction.SouthEast => Points.Where(p => p.X > start.X && p.Y > start.Y && (p.X - start.X) - (p.Y - start.Y) == TPointType.Zero),
+            Direction.South => _pointsOnXCache.TryGetValue(start.X, out var set) ? set.Where(p => p.Y > start.Y) : [],
+            Direction.SouthWest => Points.Where(p => p.X < start.X && p.Y > start.Y && (start.X - p.X) - (p.Y - start.Y) == TPointType.Zero),
+            Direction.West => _pointsOnYCache.TryGetValue(start.Y, out var set) ? set.Where(p => p.X < start.X) : [],
+            Direction.NorthWest => Points.Where(p => p.X < start.X && p.Y < start.Y && (start.X - p.X) - (start.Y - p.Y) == TPointType.Zero),
+            _ => throw new ArgumentOutOfRangeException(nameof(direction))
+        };
+    }
+
     public bool Contains(Point<TPointType> point) =>
         point.X >= MinX && point.X <= MaxX && point.Y >= MinY && point.Y <= MaxY;
+
+    public PointMap<TPointType, TValue> Clone() =>
+        _isFixedSize
+            ? new(new Dictionary<Point<TPointType>, TValue>(_points), _sizeX!, _sizeY!)
+            : new(new Dictionary<Point<TPointType>, TValue>(_points));
 }
