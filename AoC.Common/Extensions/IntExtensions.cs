@@ -30,4 +30,7 @@ public static class IntExtensions
 
     public static int Join(this int value, int other) =>
         value * (int)Math.Pow(10, other.GetDigitCount()) + other;
+
+    public static bool IsEven(this int value) =>
+        value % 2 == 0;
 }
