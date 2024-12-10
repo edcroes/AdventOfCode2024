@@ -100,4 +100,41 @@ public static class MapPathExtensions
 
         return longestPath;
     }
+
+    public static int GetNumberOfPaths<T>(this Map<T> map, Point from, T toValue, Func<Map<T>, Point, T, IEnumerable<Point>> getNeighbors, Dictionary<Point, int>? cache = null) where T : notnull
+    {
+        cache ??= [];
+
+        if (cache.TryGetValue(from, out int cachedPaths))
+            return cachedPaths;
+
+        var currentValue = map.GetValue(from);
+        if (currentValue.Equals(toValue))
+            return 1;
+
+        var neighbors = getNeighbors(map, from, currentValue);
+        var paths = neighbors.Sum(n => map.GetNumberOfPaths(n, toValue, getNeighbors, cache));
+
+        cache.Add(from, paths);
+
+        return paths;
+    }
+
+    public static int GetNumberOfPaths<T>(this Map<T> map, Point from, Point to, Func<Map<T>, Point, T, IEnumerable<Point>> getNeighbors, Dictionary<(Point, Point), int>? cache = null) where T : notnull
+    {
+        cache ??= [];
+
+        if (cache.TryGetValue((from, to), out int cachedPaths))
+            return cachedPaths;
+
+        if (from == to)
+            return 1;
+
+        var neighbors = getNeighbors(map, from, map.GetValue(from));
+        var paths = neighbors.Sum(n => map.GetNumberOfPaths(n, to, getNeighbors, cache));
+
+        cache.Add((from, to), paths);
+
+        return paths;
+    }
 }
