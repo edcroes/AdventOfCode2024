@@ -2,7 +2,7 @@ namespace AoC2024.Day06;
 
 public class Day06 : IMDay
 {
-    private readonly LinkedArray<Direction> _directions = new([
+    private static readonly LinkedArray<Direction> _directions = new([
             Direction.North,
             Direction.East,
             Direction.South,
@@ -15,52 +15,49 @@ public class Day06 : IMDay
     {
         var map = await GetInput();
 
-        var current = map.First((_, v) => v == '^');
-        var next = current.Add(Direction.North.ToPoint());
-        HashSet<Point> pointsHit = [current];
+        var start = map.First((_, v) => v == '^');
+        var path = GetPathToEnd(map, start);
 
-        var currentDirection = Direction.North;
-        char nextValue = '.';
-
-        while ((nextValue = map.GetValueOrDefault(next)) != default)
-        {
-            if (nextValue == '#')
-            {
-                currentDirection = _directions.GetNext(currentDirection);
-            }
-            else
-            {
-                current = next;
-            }
-
-            pointsHit.Add(current);
-
-            next = current.Add(currentDirection.ToPoint());
-        }
-
-        return pointsHit.Count.ToString();
+        return path.Count.ToString();
     }
 
     public async Task<string> GetAnswerPart2()
     {
         var map = await GetInput();
 
-        return map.Count((p, _) => IsMapWithChangeALoop(map, p)).ToString();
+        var start = map.First((_, v) => v == '^');
+        var path = GetPathToEnd(map, start);
+        _ = path.Remove(start);
+
+        return path.Count(p => IsMapWithChangeALoop(map, p)).ToString();
     }
 
-    private bool IsMapWithChangeALoop(Map<char> map, Point pointToChange)
+    private static HashSet<Point> GetPathToEnd(Map<char> map, Point start)
     {
-        var valueAtPoint = map.GetValue(pointToChange);
-        if (valueAtPoint.IsIn('#', '^'))
-            return false;
+        HashSet<Point> pointsHit = [];
+        var currentDirection = Direction.North;
+        var next = start;
 
+        while (map.Contains(next.Add(_directions.GetPrevious(currentDirection).ToPoint())))
+        {
+            var path = map.MoveUntil(next, currentDirection, (_, v) => v == '#');
+            pointsHit.AddRange(path);
+            next = path[^1];
+            currentDirection = _directions.GetNext(currentDirection);
+        }
+
+        return pointsHit;
+    }
+
+    private static bool IsMapWithChangeALoop(Map<char> map, Point pointToChange)
+    {
         var newMap = map.Clone();
         newMap.SetValue(pointToChange, '#');
 
         return HasLoop(newMap);
     }
 
-    private bool HasLoop(Map<char> map)
+    private static bool HasLoop(Map<char> map)
     {
         var current = map.First((_, v) => v == '^');
         var next = current.Add(Direction.North.ToPoint());

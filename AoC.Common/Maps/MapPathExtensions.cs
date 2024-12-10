@@ -137,4 +137,19 @@ public static class MapPathExtensions
 
         return paths;
     }
+
+    public static List<Point> MoveUntil<T>(this Map<T> map, Point from, Direction direction, Func<Point, T, bool> shouldStopMoving) where T : notnull
+    {
+        List<Point> path = [];
+        var movement = direction.ToPoint();
+        
+        var next = from;
+        while (map.Contains(next) && !shouldStopMoving(next, map.GetValue(next)))
+        {
+            path.Add(next);
+            next = next.Add(movement);
+        }
+
+        return path;
+    }
 }
