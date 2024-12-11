@@ -39,6 +39,10 @@ public static class FileParser
         (await File.ReadAllTextAsync(filePath))
             .ToIntArray(separator);
 
+    public static async Task<long[]> ReadLineAsLongArray(string filePath, string separator) =>
+        (await File.ReadAllTextAsync(filePath))
+            .ToLongArray(separator);
+
     public static async Task<Point3D<T>[]> ReadLinesAsPoint3D<T>(string filePath, string separator) where T : INumber<T> =>
         (await File.ReadAllLinesAsync(filePath))
             .Select(l => l.ToPoint3D<T>(separator))
