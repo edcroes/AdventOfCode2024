@@ -31,7 +31,7 @@ public class Day11 : IMDay
         var stones = stone switch
         {
             0 => [1],
-            long s when s.GetDigitCount().IsEven() => GetSplittedNumbers(stone),
+            long s when s.GetDigitCount().IsEven() => GetSplitNumber(stone),
             _ => [stone * 2024]
         };
 
@@ -41,7 +41,7 @@ public class Day11 : IMDay
         return result;
     }
 
-    private static IEnumerable<long> GetSplittedNumbers(long stone)
+    private static IEnumerable<long> GetSplitNumber(long stone)
     {
         var digits = stone.GetDigitCount() / 2;
         var divider = (long)Math.Pow(10, digits);
