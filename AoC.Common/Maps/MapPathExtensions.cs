@@ -75,6 +75,46 @@ public static class MapPathExtensions
         return currentCostPerPoint.GetValue(toPoint);
     }
 
+    public static int GetShortestPath<TMap, TWeightedPoint>(this Map<TMap> map, TWeightedPoint fromWeighted, Point to, Func<Map<TMap>, TWeightedPoint, List<(Point, TWeightedPoint, int)>> getNeighbors)
+        where TWeightedPoint : notnull
+        where TMap : notnull
+    {
+        Dictionary<TWeightedPoint, int> currentCostPerPoint = new() { { fromWeighted, 0 } };
+        HashSet<TWeightedPoint> visitedPoints = [];
+        PriorityQueue<TWeightedPoint, int> openPositions = new();
+
+        openPositions.Enqueue(fromWeighted, 0);
+        var totalCost = -1;
+
+        while (totalCost == -1)
+        {
+            var currentWeightedPoint = openPositions.Dequeue();
+            visitedPoints.Add(currentWeightedPoint);
+            var cost = currentCostPerPoint[currentWeightedPoint];
+
+            var neighbors = getNeighbors(map, currentWeightedPoint);
+
+            foreach (var (nextPoint, nextWeightedPoint, nextCost) in neighbors)
+            {
+                var newCost = cost + nextCost;
+
+                if (nextPoint == to)
+                {
+                    totalCost = newCost;
+                    break;
+                }
+
+                if (!currentCostPerPoint.TryGetValue(nextWeightedPoint, out var currentCost) || newCost < currentCost)
+                {
+                    currentCostPerPoint.AddOrSet(nextWeightedPoint, newCost);
+                    openPositions.Enqueue(nextWeightedPoint, newCost);
+                }
+            }
+        }
+
+        return totalCost;
+    }
+
     public static int GetLongestPath<T>(this Map<T> map, Point from, Point to, Func<Map<T>, Point, IEnumerable<Point>> getNeighbors) where T : notnull
     {
         List<List<Point>> routes = [[from]];
