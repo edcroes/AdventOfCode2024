@@ -4,6 +4,18 @@ namespace AoC.Common.Maps;
 
 public static class MapExtensions
 {
+    public static IEnumerable<TReturn> Select<T, TReturn>(this Map<T> map, Func<Point, T, TReturn> predicate) where T : notnull
+    {
+        for (var y = 0; y < map.SizeY; y++)
+        {
+            for (var x = 0; x < map.SizeX; x++)
+            {
+                var point = new Point(x, y);
+                yield return predicate(point, map.GetValue(point));
+            }
+        }
+    }
+
     public static Point First<T>(this Map<T> map, Func<Point, T, bool> predicate) where T : notnull
     {
         for (var y = 0; y < map.SizeY; y++)
@@ -40,7 +52,6 @@ public static class MapExtensions
 
     public static IEnumerable<Point> Where<T>(this Map<T> map, Func<Point, T, bool> predicate) where T : notnull
     {
-        var points = new List<Point>();
         for (var y = 0; y < map.SizeY; y++)
         {
             for (var x = 0; x < map.SizeX; x++)
@@ -48,12 +59,10 @@ public static class MapExtensions
                 var point = new Point(x, y);
                 if (predicate(point, map.GetValue(point)))
                 {
-                    points.Add(point);
+                    yield return point;
                 }
             }
         }
-
-        return points;
     }
 
     public static int Count<T>(this Map<T> map, T valueToMatch) where T : notnull

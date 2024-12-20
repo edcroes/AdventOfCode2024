@@ -5,7 +5,10 @@ public static class MapPathExtensions
     public static int GetShortestPath(this Map<int> map, Point toPoint) =>
         map.GetShortestPath(new Point(0, 0), toPoint);
 
-    public static int GetShortestPath(this Map<int> map, Point fromPoint, Point toPoint)
+    public static int GetShortestPath(this Map<int> map, Point fromPoint, Point toPoint) =>
+        map.GetShortestPathCostMap(fromPoint, toPoint).GetValue(toPoint);
+
+    public static Map<int> GetShortestPathCostMap(this Map<int> map, Point fromPoint, Point toPoint)
     {
         Map<int> currentCostPerPoint = new(map.SizeX, map.SizeY);
         HashSet<Point> visitedPoints = [];
@@ -34,10 +37,13 @@ public static class MapPathExtensions
             }
         }
 
-        return currentCostPerPoint.GetValue(toPoint);
+        return currentCostPerPoint;
     }
 
-    public static int GetShortestPath<T>(this Map<T> map, Point fromPoint, Point toPoint, Func<Map<T>, Point, Point, bool> canMoveTo) where T : notnull
+    public static int GetShortestPath<T>(this Map<T> map, Point fromPoint, Point toPoint, Func<Map<T>, Point, Point, bool> canMoveTo) where T : notnull =>
+        map.GetShortestPathCostMap(fromPoint, toPoint, canMoveTo)?.GetValue(toPoint) ?? int.MaxValue;
+
+    public static Map<int>? GetShortestPathCostMap<T>(this Map<T> map, Point fromPoint, Point toPoint, Func<Map<T>, Point, Point, bool> canMoveTo) where T : notnull
     {
         Map<int> currentCostPerPoint = new(map.SizeX, map.SizeY);
         HashSet<Point> visitedPoints = [];
@@ -49,7 +55,7 @@ public static class MapPathExtensions
             if (openPositions.Count == 0)
             {
                 // Dead end, no route possible
-                return int.MaxValue;
+                return null;
             }
 
             var point = openPositions.Dequeue();
@@ -72,7 +78,7 @@ public static class MapPathExtensions
             }
         }
 
-        return currentCostPerPoint.GetValue(toPoint);
+        return currentCostPerPoint;
     }
 
     public static int GetShortestPath<TMap, TWeightedPoint>(this Map<TMap> map, TWeightedPoint fromWeighted, Point to, Func<Map<TMap>, TWeightedPoint, List<(Point, TWeightedPoint, int)>> getNeighbors)
