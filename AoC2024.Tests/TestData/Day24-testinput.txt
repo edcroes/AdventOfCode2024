@@ -1,0 +1,33 @@
+x00: 1
+x01: 1
+x02: 0
+x03: 1
+x04: 1
+y00: 0
+y01: 1
+y02: 1
+y03: 1
+y04: 0
+
+x00 XOR y00 -> abc
+x00 AND y00 -> z00
+x01 XOR y01 -> de0
+de0 XOR abc -> z01
+x01 AND y01 -> de1
+de0 AND abc -> de2
+de1 OR de2 -> dec
+y02 XOR x02 -> fg0
+fg0 XOR dec -> fgc
+x02 AND y02 -> fg1
+fg0 AND dec -> fg2
+fg1 OR fg2 -> z02
+y03 XOR x03 -> hi0
+hi0 XOR fgc -> hi1
+x03 AND y03 -> z03
+hi0 AND fgc -> hi2
+hi1 OR hi2 -> hic
+y04 XOR x04 -> jk0
+jk0 XOR hic -> z04
+x04 AND y04 -> jk1
+jk0 AND hic -> jk2
+jk1 OR jk2 -> z05
