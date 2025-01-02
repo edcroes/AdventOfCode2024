@@ -37,4 +37,7 @@ public static class StringExtensions
 
     public static long ParseToLong(this string value) =>
         long.Parse(value);
+
+    public static bool ParseToBool(this string value) =>
+        "true".Equals(value, StringComparison.OrdinalIgnoreCase) || value == "1";
 }
